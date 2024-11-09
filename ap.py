@@ -12,7 +12,6 @@ df_sin_cobertura = pd.read_csv('data/sinCoberturaCusco.csv').reset_index(drop=Tr
 
 # Crear listas de opciones para los dropdowns
 opciones_inicio = [{'label': f"{row['DISTRITO']} ({row['Latitude']}, {row['Longitude']})", 'value': idx} for idx, row in df_cobertura.iterrows()]
-opciones_fin = [{'label': f"{row['DISTRITO']} ({row['Latitude']}, {row['Longitude']})", 'value': idx} for idx, row in df_sin_cobertura.iterrows()]
 
 # Crear la aplicación Dash
 app = dash.Dash(__name__)
@@ -24,8 +23,15 @@ app.layout = html.Div([
     html.Label("Selecciona un punto de inicio (con cobertura):"),
     dcc.Dropdown(id='punto-inicio', options=opciones_inicio, placeholder="Elige un punto de inicio"),
     
+    html.Label("Selecciona la distancia:"),
+    dcc.Dropdown(id='distancia', options=[
+        {'label': 'Cercano', 'value': 'cercanas'},
+        {'label': 'Intermedio', 'value': 'intermedias'},
+        {'label': 'Alejado', 'value': 'alejadas'}
+    ], placeholder="Elige una distancia"),
+    
     html.Label("Selecciona un punto de llegada (sin cobertura):"),
-    dcc.Dropdown(id='punto-fin', options=opciones_fin, placeholder="Elige un punto de llegada"),
+    dcc.Dropdown(id='punto-fin', options=[], placeholder="Elige un punto de llegada"),
     
     dl.Map([
         dl.TileLayer(url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
@@ -46,9 +52,9 @@ app.layout = html.Div([
 @app.callback(
     [Output('puntos-cobertura', 'children'),
      Output('puntos-sin-cobertura', 'children')],
-    Input('punto-inicio', 'options')
+    [Input('punto-inicio', 'value')]
 )
-def mostrar_puntos(_):
+def mostrar_puntos(punto_inicio):
     puntos_cobertura = [
         dl.CircleMarker(center=[row['Latitude'], row['Longitude']], color='blue', radius=5,
                         children=dl.Tooltip(f"{row['DISTRITO']}"))
@@ -61,8 +67,36 @@ def mostrar_puntos(_):
     ]
     return puntos_cobertura, puntos_sin_cobertura
 
+# Actualizar las opciones del dropdown de provincias en función de la distancia seleccionada
+@app.callback(
+    Output('punto-fin', 'options'),
+    [Input('punto-inicio', 'value'), Input('distancia', 'value')]
+)
+def actualizar_opciones_fin(punto_inicio, distancia):
+    if punto_inicio is None or distancia is None:
+        return []
+
+    # Obtener las coordenadas del punto de inicio seleccionado
+    inicio_coords = (df_cobertura.loc[punto_inicio, 'Latitude'], df_cobertura.loc[punto_inicio, 'Longitude'])
+    
+    # Filtrar las provincias en función de la distancia seleccionada
+    if distancia == 'cercanas':
+        max_distancia = 20000  # 20 km
+    elif distancia == 'intermedias':
+        max_distancia = 50000  # 50 km
+    else:
+        max_distancia = 100000  # 100 km
+
+    opciones_fin = [
+        {'label': f"{row['DISTRITO']} ({row['Latitude']}, {row['Longitude']})", 'value': idx}
+        for idx, row in df_sin_cobertura.iterrows()
+        if geodesic(inicio_coords, (row['Latitude'], row['Longitude'])).meters <= max_distancia
+    ]
+    
+    return opciones_fin
+
 # Función para verificar la distancia directa
-def direct_distance_check(start, end, max_distance=5000):
+def direct_distance_check(start, end, max_distance=5000000):
     distance = geodesic(start, end).meters
     return distance <= max_distance
 
@@ -92,7 +126,7 @@ def dijkstra(grafo, inicio, fin):
 def construir_grafo(df, fin_coords, max_distancia=80000):
     grafo = {}
     destino_idx = len(df)  # Usar un índice entero para el destino
-    puntos = [(idx, (row['Latitude'], row['Longitude'])) for idx, row in df.iterrows()]
+    puntos = [(idx, (row['Latitude'], 'Longitude')) for idx, row in df.iterrows()]
     puntos.append((destino_idx, fin_coords))  # Agregar el punto sin cobertura como destino
 
     for idx1, coord1 in puntos:
