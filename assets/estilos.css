@@ -1,0 +1,136 @@
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('Verano\ Animado.gif');
+    height: 100vh;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#auth-layout {
+    background: rgba(0, 0, 0, 1); 
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    width: 400px;
+    max-width: 90%;
+    color: #0e02afe5;
+}
+
+h1 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    color: #000000;
+}
+
+.dash-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.dash-tabs .tab {
+    font-size: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 20px;
+    margin: 0 5px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.dash-tabs .tab:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+}
+
+.dash-tabs .tab--selected {
+    background: #6e44ff;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 14px;
+}
+
+input::placeholder {
+    color: #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 8px;
+    background: #6e44ff;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background: #02a4e4;
+    transform: scale(1.05);
+}
+
+#login-error, #register-error {
+    font-size: 14px;
+    color: #ff6161;
+    margin-top: 10px;
+}
+#app-layout {
+    position: relative; /* Permite controlar la posición con left */
+    width: 130%;
+    height: 100%;
+    max-width: 1200px;
+    margin-right: 455px; /* Pégalo al lado izquierdo */
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#mapa-principal {
+    height: 800px !important; /* Altura consistente */
+}
+
+label{
+    color: #000000; 
+    font-weight: bold; 
+    font-size: 16px;
+}
+
+@media screen and (max-width: 480px) {
+    #auth-layout {
+        width: 90%;
+        padding: 30px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    button {
+        padding: 10px;
+    }
+}
+
